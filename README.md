@@ -18,7 +18,7 @@
 1. Instala Node.js (versión LTS) desde https://nodejs.org
 2. Abre una terminal dentro de la carpeta donde se alojen los archivos.
 3. Ejecuta:
-   npm install
-   npm run dev
+   * npm install
+   * npm run dev
 4. Abre en el navegador la dirección que muestre la terminal (normalmente http://localhost:5173).
 5. Para detener el servidor: Ctrl + C en la terminal.
