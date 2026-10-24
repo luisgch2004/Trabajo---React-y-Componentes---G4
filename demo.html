@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gestión académica</title>
+<style>
+:root { box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+:root {
+  color-scheme: light dark;
+  --tinta: #14213d;
+  --papel: #f5f7fa;
+  --superficie: #ffffff;
+  --borde: #d5dbe5;
+  --acento: #0b7285;
+  --acento-oscuro: #095c6b;
+  --error: #b42318;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--papel);
+  color: var(--tinta);
+}
+
+.app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+header h1 { margin: 0; font-size: 2rem; }
+header p { margin: 0.25rem 0 1.5rem; color: #52607a; }
+
+.contenido {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* Formulario */
+.formulario {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.formulario h2 { margin: 0 0 0.5rem; font-size: 1.15rem; }
+.formulario label { font-weight: 600; font-size: 0.9rem; }
+.formulario input {
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  font: inherit;
+}
+.formulario input:focus-visible,
+.formulario button:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 1px;
+}
+.formulario button {
+  margin-top: 0.5rem;
+  padding: 0.65rem;
+  border: 0;
+  border-radius: 6px;
+  background: var(--acento);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.formulario button:hover { background: var(--acento-oscuro); }
+.error { margin: 0; color: var(--error); font-size: 0.9rem; }
+
+/* Lista y tarjetas */
+.lista { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.tarjeta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-left: 4px solid var(--acento);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+}
+.tarjeta h3 { margin: 0; font-size: 1.05rem; }
+.tarjeta p { margin: 0.15rem 0 0; color: #52607a; }
+
+.avatar {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--tinta);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+
+.vacio { color: #52607a; padding: 1rem 0; }
+
+@media (max-width: 720px) {
+  .contenido { grid-template-columns: 1fr; }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --tinta: #e6ebf5; --papel: #0f1626; --superficie: #19223a;
+    --borde: #2f3b5a; --acento: #3bb3c9; --acento-oscuro: #5cc6da; --error: #ff8a7a;
+  }
+  .avatar { background: #2f3b5a; }
+  .formulario button { color: #0f1626; }
+  header p, .tarjeta p, .vacio { color: #9aa8c7; }
+}
+
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+<script type="text/babel">
+const { useState } = React;
+
+// ===== components/FormularioEstudiante.jsx =====
+/**
+ * FormularioEstudiante
+ * Captura el nombre y la carrera. Mantiene su propio estado local (inputs
+ * controlados) y, al enviar, avisa al componente padre mediante la prop
+ * `onAgregar` (comunicación hijo -> padre).
+ */
+function FormularioEstudiante({ onAgregar }) {
+  const [nombre, setNombre] = useState("");
+  const [carrera, setCarrera] = useState("");
+  const [error, setError] = useState("");
+
+  const manejarEnvio = (evento) => {
+    evento.preventDefault(); // evita que la página se recargue
+
+    if (nombre.trim() === "" || carrera.trim() === "") {
+      setError("Completa el nombre y la carrera para registrar al estudiante.");
+      return;
+    }
+
+    onAgregar({ nombre: nombre.trim(), carrera: carrera.trim() });
+
+    // Se limpia el formulario después de registrar
+    setNombre("");
+    setCarrera("");
+    setError("");
+  };
+
+  return (
+    <form className="formulario" onSubmit={manejarEnvio} noValidate>
+      <h2>Registrar estudiante</h2>
+
+      <label htmlFor="nombre">Nombre</label>
+      <input
+        id="nombre"
+        type="text"
+        placeholder="Ej. María Quispe"
+        value={nombre}
+        onChange={(e) => setNombre(e.target.value)}
+      />
+
+      <label htmlFor="carrera">Carrera</label>
+      <input
+        id="carrera"
+        type="text"
+        placeholder="Ej. Ingeniería de Sistemas"
+        value={carrera}
+        onChange={(e) => setCarrera(e.target.value)}
+      />
+
+      {error && (
+        <p className="error" role="alert">
+          {error}
+        </p>
+      )}
+
+      <button type="submit">Agregar estudiante</button>
+    </form>
+  );
+}
+
+// ===== components/TarjetaEstudiante.jsx =====
+/**
+ * TarjetaEstudiante
+ * Componente de presentación: recibe los datos únicamente por props
+ * y los muestra. No tiene estado propio.
+ */
+function TarjetaEstudiante({ nombre, carrera }) {
+  // Iniciales del nombre para el avatar (ej. "María Quispe" -> "MQ")
+  const iniciales = nombre
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((palabra) => palabra[0].toUpperCase())
+    .join("");
+
+  return (
+    <article className="tarjeta">
+      <div className="avatar" aria-hidden="true">
+        {iniciales}
+      </div>
+      <div>
+        <h3>{nombre}</h3>
+        <p>{carrera}</p>
+      </div>
+    </article>
+  );
+}
+
+// ===== components/ListaEstudiantes.jsx =====
+/**
+ * ListaEstudiantes
+ * Recibe el arreglo `estudiantes` por props y renderiza una
+ * TarjetaEstudiante por cada registro usando map().
+ * Cada elemento lleva una `key` única (el id) para que React
+ * actualice la lista de forma eficiente.
+ */
+function ListaEstudiantes({ estudiantes }) {
+  if (estudiantes.length === 0) {
+    return (
+      <p className="vacio">
+        Aún no hay estudiantes. Usa el formulario para agregar el primero.
+      </p>
+    );
+  }
+
+  return (
+    <section className="lista" aria-label="Lista de estudiantes">
+      {estudiantes.map((estudiante) => (
+        <TarjetaEstudiante
+          key={estudiante.id}
+          nombre={estudiante.nombre}
+          carrera={estudiante.carrera}
+        />
+      ))}
+    </section>
+  );
+}
+
+// ===== App.jsx =====
+/**
+ * App
+ * Componente raíz. Guarda el estado compartido (la lista de estudiantes)
+ * y se lo pasa a los hijos:
+ *   - al formulario le da la función `agregarEstudiante`
+ *   - a la lista le da el arreglo `estudiantes`
+ */
+function App() {
+  const [estudiantes, setEstudiantes] = useState([
+    { id: 1, nombre: "Ana Torres", carrera: "Psicología" },
+    { id: 2, nombre: "Luis Ramírez", carrera: "Ingeniería de Sistemas" },
+  ]);
+
+  const agregarEstudiante = ({ nombre, carrera }) => {
+    const nuevo = { id: Date.now(), nombre, carrera };
+    // Se crea un arreglo nuevo (no se modifica el anterior)
+    setEstudiantes((anteriores) => [...anteriores, nuevo]);
+  };
+
+  return (
+    <main className="app">
+      <header>
+        <h1>Gestión académica</h1>
+        <p>{estudiantes.length} estudiante(s) registrado(s)</p>
+      </header>
+
+      <div className="contenido">
+        <FormularioEstudiante onAgregar={agregarEstudiante} />
+        <ListaEstudiantes estudiantes={estudiantes} />
+      </div>
+    </main>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
