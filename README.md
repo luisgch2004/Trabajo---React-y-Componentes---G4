@@ -7,7 +7,7 @@
 3. Nuñez Cardenas Ivan Joaquin
 4. Montes Ramos Carol Sofia
 5. Toro Vargas Karlo Andrés
-`todos los integrantes tuvieron participacion en el proyecto`
+* `todos los integrantes tuvieron participacion en el proyecto`
 ---
 ## Pasos para abrir el proyecto: 
 ## Opción A: abrir sin instalar nada 
